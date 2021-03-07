@@ -1,4 +1,8 @@
 ﻿@page "/Hotel-Room"
+@using Bussiness.Repository.IRepositories
+@inject IHotelRoomRepository _IHotelRepository
+@using Models
+
 
 <div class="row mt-4">
     <div class="col-8">
@@ -8,9 +12,57 @@
         <a href="Hotel-Rooms/create" class="btn btn-primary">Add New Room</a>
     </div>
 </div>
+<div class="row mt-4">
+    <div class="col-12">
+        <table class="table table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Occupancy</th>
+                    <th>Rate</th>
+                    <th>Sq Ft</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (HotelRooms.Any())
+                {
+                    @foreach (var item in HotelRooms)
+                    {
+                <tr>
+                    <td>@item.Name</td>
+                    <td>@item.Occupancy</td>
+                    <td>@item.RegularRate.ToString("c")</td>
+                    <td>@item.SqFt</td>
+                </tr>
+                    }
+                }
+                else
+                {
+                    <tr><td colspan="5">No Recoreds Were Found</td></tr>
+                }
 
+            </tbody>
+        </table>
+    </div>
+</div>
 
 
 @code {
+
+
+    public IEnumerable<HotelRoomDTO> HotelRooms { get; set; } = new List<HotelRoomDTO>();
+
+
+    protected async override Task OnInitializedAsync()
+    {
+
+        HotelRooms = await _IHotelRepository.GetAllHotelRooms();
+
+    }
+
+
+
+
 
 }

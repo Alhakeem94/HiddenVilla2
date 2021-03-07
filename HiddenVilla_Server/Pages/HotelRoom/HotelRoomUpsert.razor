@@ -1,12 +1,76 @@
 ﻿@page "/Hotel-Rooms/create"
+@using Models 
+@using Bussiness.Repository.IRepositories
+@inject IHotelRoomRepository _HotelRoomRepoistory
+@inject NavigationManager _NavigationManager
 
 
 
+<div class="row mt-2 mb-5">
+    
+        <h3 class="card-title text-info mb-3 ml-3">Create Hotel Room</h3>
+  <div class="col-md-12">
+      <div class="card">
+          <div class="card-body">
+              <EditForm Model="HotelRoomModel" OnValidSubmit="HandleHotelRoomUpsert">
+                  <DataAnnotationsValidator />
+                  <ValidationSummary />
+                  <div class="form-group">
+                      <label>Name</label>
+                      <InputText @bind-Value="HotelRoomModel.Name" class="form-control"></InputText>
+                  </div>
+                  <div class="form-group">
+                      <label>Occupancy</label>
+                      <InputNumber @bind-Value="HotelRoomModel.Occupancy" class="form-control"></InputNumber>
+                  </div>
+                  <div class="form-group">
+                      <label>Price Range</label>
+                      <InputNumber @bind-Value="HotelRoomModel.RegularRate" class="form-control"></InputNumber>
+                  </div>
+                  <div class="form-group">
+                      <label>Details</label>
+                      <InputTextArea @bind-Value="HotelRoomModel.Details" class="form-control"></InputTextArea>
+                  </div>
+                  <div class="form-group">
+                      <label>Sq Ft.</label>
+                      <InputText @bind-Value="HotelRoomModel.SqFt" class="form-control"></InputText>
+                  </div>
+                  <div class="form-group">
+                      <a href="Hotel-Room" class="btn btn-primary">Return</a>
+                      <button type="submit" class="btn btn-success text-white">@Title Room</button>
+                  </div>
+              </EditForm>
+          </div>
+      </div>
+  </div>
+</div>
 
 
 
 
 
 @code {
+
+    public HotelRoomDTO HotelRoomModel { get; set; } = new HotelRoomDTO();
+    public string Title { get; set; } = "Create";
+
+
+    private async Task HandleHotelRoomUpsert()
+    {
+        var isUnique = await _HotelRoomRepoistory.IsSameRoomAlreadyPresent(HotelRoomModel.Name);
+
+        if (isUnique == null)
+        {
+            await _HotelRoomRepoistory.CreateHotelRoom(HotelRoomModel);
+            _NavigationManager.NavigateTo("Hotel-Room");
+        }
+        else
+        {
+            return;
+        }
+
+
+    }
+
 
 }

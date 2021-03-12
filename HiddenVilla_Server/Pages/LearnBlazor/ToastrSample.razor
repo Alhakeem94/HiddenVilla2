@@ -1,0 +1,19 @@
+﻿@page "/ToastrSample"
+@inject IJSRuntime _JsRunTime
+
+
+
+<button class="btn btn-success" @onclick="TestButton">Show Success Alert</button>
+
+
+
+
+@code {
+
+    public async Task TestButton()
+    {
+        await _JsRunTime.SweetAlertSuccess("Hello World");
+    }
+
+
+}

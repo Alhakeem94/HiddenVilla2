@@ -1,0 +1,71 @@
+﻿@page "/Ameinities"
+
+@inject IJSRuntime _JsRunTime
+@using Bussiness.Repository.IRepositories
+@inject IAmeinityRepository _IAmenityRepo
+@using Models
+
+
+
+
+
+
+
+<a class="btn btn-success fa fa-plus-circle" href="HotelAmeinityUpsert">Create New Amenity</a>
+<hr />
+<br />
+
+<table class="table table-hover table-bordered">
+    <tr>
+        <th>Name</th>
+        <th>Time</th>
+        <th></th>
+    </tr>
+    @foreach (var item in HotelAmeinityDTOsVariable)
+    {
+<tr>
+    <td>@item.Name</td>
+    <td>@item.Timing</td>
+    <td><span class="fa fa-swimming-pool">Swimming</span></td>
+    <td><NavLink class="btn btn-success" href="@($"/HotelAmeinityUpsert/Update/{item.Id}")">Edit</NavLink>
+   <NavLink class="btn btn-danger text-white" @onclick="()=>GetAmienityId(item.Id)">Delete</NavLink></td>
+
+</tr>
+    }
+</table>
+
+<DeleteConfirmation ConfirmationChanged="DeleteAmienity"></DeleteConfirmation>
+
+@code {
+
+    private IEnumerable<HotelAmeinityDTO> HotelAmeinityDTOsVariable { get; set; } = new List<HotelAmeinityDTO>();
+    private int DeletedAmienityId { get; set; }
+
+    private async Task GetAmienityId(int Id)
+    {
+        DeletedAmienityId = Id;
+        await _JsRunTime.InvokeVoidAsync("ShowDeleteConfirmationModal");
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        HotelAmeinityDTOsVariable = await _IAmenityRepo.GetAllAmeinities();
+    }
+
+    private async Task DeleteAmienity(bool IsConfirmed)
+    {
+        if (IsConfirmed)
+        {
+            await _IAmenityRepo.DeleteHotelAmeinity(DeletedAmienityId);
+            await _JsRunTime.SweetAlertSuccess("Amienity Has Been Deleted");
+            await _JsRunTime.InvokeVoidAsync("HideDeleteConfirmationModal");
+            HotelAmeinityDTOsVariable =await _IAmenityRepo.GetAllAmeinities();
+        }
+        else
+        {
+            await _JsRunTime.SweetAlertFailed("Problem Happened Couldnt Delete The Amienity");
+
+        }
+
+    }
+}

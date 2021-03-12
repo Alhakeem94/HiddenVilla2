@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Models;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -37,7 +38,7 @@ namespace Bussiness.Repository
         {
             try
             { 
-                var ListOfRoomDTOS = _Mapper.Map<IEnumerable<HotelRoom>, IEnumerable<HotelRoomDTO>>(_db.HotelRooms);
+                var ListOfRoomDTOS = _Mapper.Map<IEnumerable<HotelRoom>, IEnumerable<HotelRoomDTO>>(_db.HotelRooms.Include(a=>a.HotelRoomImages));
                 return ListOfRoomDTOS;
             }
             catch (Exception)
@@ -54,7 +55,7 @@ namespace Bussiness.Repository
 
             try
             {
-                var RoomFromDataBase = await _db.HotelRooms.SingleOrDefaultAsync(a => a.Id == RoomId);
+                var RoomFromDataBase = await _db.HotelRooms.Include(a=>a.HotelRoomImages).SingleOrDefaultAsync(a => a.Id == RoomId);
 
                 var RoomDTO = _Mapper.Map<HotelRoom, HotelRoomDTO>(RoomFromDataBase);
 
@@ -68,15 +69,24 @@ namespace Bussiness.Repository
 
         }
 
-        public async Task<HotelRoomDTO> IsSameRoomAlreadyPresent(string name)
+        public async Task<HotelRoomDTO> IsSameRoomAlreadyPresent(string name , int Id = 0)
         {
             try
             {
+                if (Id == 0)
+                {              
                 var RoomFromDataBase = await _db.HotelRooms.SingleOrDefaultAsync(a => a.Name == name);
-
                 var RoomDTO = _Mapper.Map<HotelRoom, HotelRoomDTO>(RoomFromDataBase);
 
                 return RoomDTO;
+                }
+                else
+                {
+                    var RoomFromDataBase = await _db.HotelRooms.SingleOrDefaultAsync(a => a.Name == name && a.Id != Id);
+                    var RoomDTO = _Mapper.Map<HotelRoom, HotelRoomDTO>(RoomFromDataBase);
+
+                    return RoomDTO;
+                }
             }
             catch (Exception)
             {
@@ -115,6 +125,9 @@ namespace Bussiness.Repository
             {
                 var DeletedRoom = await _db.HotelRooms.FindAsync(RoomId);
 
+                var ListOfImages = await _db.HotelRoomImages.Where(a => a.RoomId == RoomId).ToListAsync();
+               
+                _db.RemoveRange(ListOfImages);
                 var Delete = _db.HotelRooms.Remove(DeletedRoom);
 
                 return await _db.SaveChangesAsync();

@@ -1,0 +1,69 @@
+﻿@page "/HotelAmeinityUpsert"
+@page "/HotelAmeinityUpsert/Update/{Id:int}"
+
+@using Models
+@using Bussiness.Repository.IRepositories
+@inject IAmeinityRepository _IAmeinityRepo
+@inject IJSRuntime _JsRunTime
+@inject NavigationManager _NavigationManager
+
+<div class="row mt-2 mb-5">
+    <h3 class="card-title text-info mb-3 ml-3">  Create Hotel Room</h3>
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body">
+                <EditForm Model="HotelAmeinityVariable" OnValidSubmit="HandleHotelRoomUpsert">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary />
+                    <div class="form-group">
+                        <label>Amienity Name</label>
+                        <InputText @bind-Value="HotelAmeinityVariable.Name" class="form-control"></InputText>
+                    </div>
+                    <div class="form-group">
+                        <label>Amienity Time</label>
+                        <InputText @bind-Value="HotelAmeinityVariable.Timing" class="form-control"></InputText>
+                    </div>
+
+                    <br />
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-secondary">@Title Room</button>
+                        <a class="btn btn-danger text-white" href="Ameinities">Back</a>
+                    </div>
+
+                </EditForm>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+
+
+
+@code {
+
+    [Parameter]
+    public int Id { get; set; }
+
+    private HotelAmeinityDTO HotelAmeinityVariable { get; set; } = new HotelAmeinityDTO();
+
+    private string Title { get; set; } = "Create";
+
+
+    private async Task HandleHotelRoomUpsert()
+    {
+        var IsAmienityUniuqe =await _IAmeinityRepo.IsAmeinityUnique(HotelAmeinityVariable.Name);
+
+        if (IsAmienityUniuqe == true)
+        {
+            await _IAmeinityRepo.CreateHotelAmeinity(HotelAmeinityVariable);
+            await _JsRunTime.SweetAlertSuccess("Amienity Is Successfuly added");
+            _NavigationManager.NavigateTo("Ameinities");
+        }
+        else
+        {
+            await _JsRunTime.SweetAlertFailed("Amienity Already Exist");
+        }
+    }
+}

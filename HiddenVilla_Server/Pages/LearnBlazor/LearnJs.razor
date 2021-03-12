@@ -1,0 +1,67 @@
+﻿@page "/LearnJs"
+@inject IJSRuntime JsRunTime
+@using HiddenVilla_Server.Pages.LearnBlazor
+
+<div>
+    <button class="btn btn-success" @onclick="(()=>TestConfirmBox(ConfirmMessage))" >Test</button>
+</div>
+
+<div>
+    <button class="btn btn-success" @onclick="TestSuccess">TestSuccess</button>
+    <button class="btn btn-success" @onclick="TestFaliure">TestFaliure</button>
+    <button class="btn btn-success" @onclick="SuccessSweetSuccess">TestSweetAlertSuccess</button>
+    <button class="btn btn-success" @onclick="SuccessSweetError">TestSweetAlertFailure</button>
+
+</div>
+@if (ConfirmResult)
+{
+    <p>Confirmation Has Been Made</p>
+}
+else
+{
+    <p>Pending Confirmation</p>
+    
+}
+
+<button class="btn btn-primary" @onclick="()=>SimpleSwAl.TestButton()">Hello From Parent</button>
+
+<ToastrSample @ref="SimpleSwAl">
+
+</ToastrSample>
+
+
+
+
+@code {
+    public string ConfirmMessage { get; set; } = "Are You Sure You Want To Click";
+    private bool ConfirmResult { get; set; }
+
+    private ToastrSample SimpleSwAl;
+
+
+
+    private async Task TestConfirmBox(string Message)
+    {
+        ConfirmResult = await JsRunTime.InvokeAsync<bool>("confirm", Message);
+    }
+
+
+
+    private async Task TestSuccess()
+    {
+        await JsRunTime.ToastrSuccess("Operation Succesful");
+    }
+    private async Task TestFaliure()
+    {
+        await JsRunTime.ToastrFailure("Operation Failed");
+    }
+    private async Task SuccessSweetError()
+    {
+        await JsRunTime.SweetAlertFailed("Operation is a Failed");
+    }
+    private async Task SuccessSweetSuccess()
+    {
+        await JsRunTime.SweetAlertSuccess("Operation is a Success");
+    }
+
+}

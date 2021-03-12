@@ -14,7 +14,7 @@ namespace Bussiness.Repository.IRepositories
         public Task<HotelRoomDTO> UpdateHotelRoom(int RoomId,HotelRoomDTO hotelRoomdto);
         public Task<HotelRoomDTO> GetHotelRoom(int RoomId);
         public Task<IEnumerable<HotelRoomDTO>> GetAllHotelRooms();
-        public Task<HotelRoomDTO> IsSameRoomAlreadyPresent(string name);
+        public Task<HotelRoomDTO> IsSameRoomAlreadyPresent(string name , int Id = 0);
         public Task<int> DeleteRoom(int RoomId);
 
 

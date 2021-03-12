@@ -1,5 +1,9 @@
+using Bussiness.Repository;
+using Bussiness.Repository.IRepositories;
 using DataAccess.Data;
 using HiddenVilla_Server.Data;
+using HiddenVilla_Server.Service;
+using HiddenVilla_Server.Service.Iservice;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Hosting;
@@ -34,6 +38,12 @@ namespace HiddenVilla_Server
             services.AddDbContext<ApplicationDbContext>(options =>
             options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+            services.AddScoped<IHotelRoomRepository, HotelRoomRepository>();
+            services.AddScoped<IAmeinityRepository, HotelAmeinityRepository>();
+            services.AddScoped<IFileUpload, FileUpload>();
+            services.AddScoped<IHotelImagesRepository, HotelImageRepository>();
+
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

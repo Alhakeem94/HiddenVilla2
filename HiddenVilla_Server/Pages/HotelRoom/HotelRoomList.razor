@@ -1,4 +1,10 @@
 ﻿@page "/Hotel-Room"
+@using Models
+@using Bussiness.Repository.IRepositories
+@inject IHotelRoomRepository _HotelRoomRepository
+@inject IHotelImagesRepository _HotelImageRepository
+@inject IJSRuntime _JsRunTime
+@inject HiddenVilla_Server.Service.Iservice.IFileUpload _IFileUpload
 
 <div class="row mt-4">
     <div class="col-8">
@@ -9,8 +15,92 @@
     </div>
 </div>
 
+<div class="row mt-4">
+    <div class="col-12">
+        <table class="table table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Occupancy</th>
+                    <th>Rate</th>
+                    <th>Size</th>
+                    <th></th>
+
+                </tr>
+            </thead>
+            <tbody>
+                @if (HotelRooms.Any())
+                {
+                    @foreach (var item in HotelRooms)
+                    {
+                <tr>
+                    <td>@item.Name</td>
+                    <td>@item.Occupancy</td>
+                    <td>@item.RegularRate.ToString("c")</td>
+                    <td>@item.SqFt</td>
+                    <td><NavLink href="@($"Hotel-Rooms/Edit/{item.Id}")" class="btn btn-primary">Edit Room</NavLink>
+                   <NavLink @onclick="()=>GetRoomId(item.Id)" class="btn btn-primary text-white">Delete Room</NavLink></td>
+                </tr>
+                    }
+                }
+                else
+                { 
+                    <tr>
+                        <td><p>There Are no Recordes found here</p></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<DeleteConfirmation IsParentComponentProssecing="IsProccessing" ConfirmationChanged="ConfirmDelete_Click"></DeleteConfirmation>
+
 
 
 @code {
 
+    private IEnumerable<HotelRoomDTO> HotelRooms { get; set; } = new List<HotelRoomDTO>();
+    private int? DeletedRoomId { get; set; } = null;
+    private bool IsProccessing { get; set; } = false;
+
+    protected async override Task OnInitializedAsync()
+    {
+
+        HotelRooms = await _HotelRoomRepository.GetAllHotelRooms();
+
+    }
+
+
+
+
+    private async Task GetRoomId(int RoomId)
+    {
+        DeletedRoomId = RoomId;
+        await _JsRunTime.InvokeVoidAsync("ShowDeleteConfirmationModal");
+
+    }
+
+    public async Task ConfirmDelete_Click(bool IsConfirmed)
+    {
+        IsProccessing = true;
+        if (IsConfirmed && DeletedRoomId != null)
+        {
+            HotelRoomDTO hotelRoom =await _HotelRoomRepository.GetHotelRoom(DeletedRoomId.Value);
+            foreach (var item in hotelRoom.HotelRoomImages)
+            {
+                var ImageName = item.RoomImageUrl.Replace($"RoomImages", "");
+                _IFileUpload.DeleteFile(ImageName);
+            }
+
+            await _HotelRoomRepository.DeleteRoom(DeletedRoomId.Value);
+            await _JsRunTime.SweetAlertSuccess("Room Has Been Deleted");
+            HotelRooms =await _HotelRoomRepository.GetAllHotelRooms();
+
+
+        }
+        await _JsRunTime.InvokeVoidAsync("HideDeleteConfirmationModal");
+
+        IsProccessing = false;
+    }
 }

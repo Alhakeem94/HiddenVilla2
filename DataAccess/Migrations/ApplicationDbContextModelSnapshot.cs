@@ -19,6 +19,30 @@ namespace DataAccess.Migrations
                 .HasAnnotation("ProductVersion", "5.0.3")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+            modelBuilder.Entity("DataAccess.Data.HotelAmienties", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Timing")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Amienties");
+                });
+
             modelBuilder.Entity("DataAccess.Data.HotelRoom", b =>
                 {
                     b.Property<int>("Id")
@@ -57,6 +81,42 @@ namespace DataAccess.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("HotelRooms");
+                });
+
+            modelBuilder.Entity("DataAccess.Data.HotelRoomImage", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("RoomId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("RoomImageUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RoomId");
+
+                    b.ToTable("HotelRoomImages");
+                });
+
+            modelBuilder.Entity("DataAccess.Data.HotelRoomImage", b =>
+                {
+                    b.HasOne("DataAccess.Data.HotelRoom", "HotelRoom")
+                        .WithMany("HotelRoomImages")
+                        .HasForeignKey("RoomId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("HotelRoom");
+                });
+
+            modelBuilder.Entity("DataAccess.Data.HotelRoom", b =>
+                {
+                    b.Navigation("HotelRoomImages");
                 });
 #pragma warning restore 612, 618
         }
